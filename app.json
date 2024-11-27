@@ -23,6 +23,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "entryPoint": "./App.js"  // Verifique se está definido corretamente
+    "entryPoint": "./App.js"
   }
 }
