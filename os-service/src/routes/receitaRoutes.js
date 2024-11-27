@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const receitaController = require('../controllers/receitaController');
+const receitaController = require('../controller/receitaController');
 
 // Criar uma nova receita
 router.post('/', receitaController.createReceita);
