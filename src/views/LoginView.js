@@ -1,14 +1,24 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, Button, Alert, TouchableOpacity } from 'react-native';
-import apiUrl from '../config/apiUrl.js'; // Seu arquivo com a URL da API
+import { StyleSheet, View, Text, TextInput, Button, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import apiUrl from '../config/apiUrl.js'; // URL da API
 
 export default LoginView = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (!email || !senha) {
+      return Alert.alert('Erro', 'Por favor, preencha todos os campos.');
+    }
+
+    setIsLoading(true);
+
     try {
-      const response = await fetch(apiUrl + "/login", {
+      console.log('Dados enviados:', { email, senha });
+
+      const response = await fetch(apiUrl + "/auth/login", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -16,20 +26,22 @@ export default LoginView = ({ navigation }) => {
         body: JSON.stringify({ email, senha }),
       });
 
+      const data = await response.json();
+      console.log('Status da resposta:', response.status);
+      console.log('Resposta completa:', data);
+
       if (response.ok) {
-        const data = await response.json();
-        // Se o login for bem-sucedido, armazena o token ou dados do usuário
-        // Aqui podemos usar AsyncStorage ou Context API para manter o estado de login
+        await AsyncStorage.setItem('userToken', data.token);
         Alert.alert('Sucesso', 'Login realizado com sucesso!');
-        // Navega para a tela de Dashboard
         navigation.navigate('Dashboard');
       } else {
-        const errorData = await response.json();
-        Alert.alert('Erro', errorData.error || 'Credenciais inválidas.');
+        Alert.alert('Erro', data.error || 'Credenciais inválidas.');
       }
     } catch (err) {
       Alert.alert('Erro', 'Não foi possível se conectar ao servidor.');
       console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -43,6 +55,8 @@ export default LoginView = ({ navigation }) => {
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        autoCapitalize="none"
+        autoCorrect={false}
       />
 
       <TextInput
@@ -53,7 +67,11 @@ export default LoginView = ({ navigation }) => {
         secureTextEntry
       />
 
-      <Button title="Entrar" onPress={handleLogin} color="#2C6BED" />
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#2C6BED" />
+      ) : (
+        <Button title="Entrar" onPress={handleLogin} color="#2C6BED" />
+      )}
 
       <TouchableOpacity onPress={() => navigation.navigate('Cadastro')}>
         <Text style={styles.link}>Não tem conta? Cadastre-se</Text>

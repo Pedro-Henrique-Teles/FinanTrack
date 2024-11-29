@@ -1,0 +1,49 @@
+const Usuario = require('../models/Usuario');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+exports.login = async (req, res) => {
+  const { email, senha } = req.body;
+
+  if (!email || !senha) {
+    console.log('Erro: Email ou senha não fornecidos');
+    return res.status(400).json({ error: 'Email e senha são obrigatórios' });
+  }
+
+  try {
+    console.log('Tentativa de login para o email:', email);
+
+    // Busca o usuário no banco de dados
+    const usuario = await Usuario.findOne({ where: { email } });
+    if (!usuario) {
+      console.log('Usuário não encontrado para o email:', email);
+      return res.status(401).json({ error: 'Credenciais inválidas' });
+    }
+
+    console.log('Hash da senha armazenada no banco:', usuario.senha);
+    console.log('Senha fornecida:', senha);
+
+    // Validação da senha
+    const senhaValida = await bcrypt.compare(senha, usuario.senha);
+    console.log('Senha válida:', senhaValida);
+
+    if (!senhaValida) {
+      console.log('Erro: Senha incorreta para o email:', email);
+      return res.status(401).json({ error: 'Credenciais inválidas' });
+    }
+
+    // Gerando o token JWT com chave secreta personalizada
+    const token = jwt.sign(
+      { id: usuario.id, email: usuario.email },
+      process.env.JWT_SECRET || 'SuaChaveSecretaForte', // Utilize uma chave secreta segura
+      { expiresIn: '1h' }
+    );
+
+    console.log('Token gerado com sucesso para o usuário ID:', usuario.id);
+
+    res.status(200).json({ message: 'Login bem-sucedido!', token });
+  } catch (err) {
+    console.error('Erro interno no login:', err); // Log detalhado do erro
+    res.status(500).json({ error: 'Erro interno do servidor. Tente novamente mais tarde.' });
+  }
+};

@@ -1,22 +1,31 @@
 const express = require('express');
-const sequelize = require('./bd/database');
+const cors = require('cors');  // Importe o CORS
+const bodyParser = require('body-parser');
+const authRoutes = require('./routes/authRoutes');
+const usuarioRoutes = require('./routes/usuarioRoutes');
 const despesaRoutes = require('./routes/despesaRoutes');
 const receitaRoutes = require('./routes/receitaRoutes');
-const usuarioRoutes = require('./routes/usuarioRoutes');
 
 const app = express();
-app.use(express.json());
 
-// Usar as rotas para **Despesas**, **Receitas** e **Usuários**
-app.use('/despesa', despesaRoutes);
-app.use('/receita', receitaRoutes);
+// Configure o CORS para aceitar qualquer origem (se quiser permitir ngrok ou outras origens específicas)
+app.use(cors());  // Permite todas as origens. Você pode customizar se necessário
+
+// Configurar o body parser
+app.use(bodyParser.json());
+
+// Rotas
+app.use('/auth', authRoutes);
 app.use('/usuario', usuarioRoutes);
+app.use('/despesas', despesaRoutes);
+app.use('/receitas', receitaRoutes);
 
-// Inicie o servidor e sincronize o banco
-sequelize.sync()
-  .then(() => {
-    app.listen(3000, () => {
-      console.log('Servidor rodando na porta 3000');
-    });
-  })
-  .catch((err) => console.log(err));
+// Rota para verificar se o servidor está funcionando
+app.get('/', (req, res) => {
+  res.send('Servidor está funcionando!');
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});

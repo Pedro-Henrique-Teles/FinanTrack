@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const despesaController = require('../controller/despesaController.js');
+const despesaController = require('../controller/despesaController');
 
 // Criar uma nova despesa
 router.post('/', despesaController.createDespesa);

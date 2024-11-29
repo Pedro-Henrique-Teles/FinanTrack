@@ -8,7 +8,6 @@ import DashboardView from '../views/DashboardView';
 import DespesasView from '../views/DespesasView';
 import ReceitasView from '../views/ReceitasView';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 
 const Drawer = createDrawerNavigator();
 

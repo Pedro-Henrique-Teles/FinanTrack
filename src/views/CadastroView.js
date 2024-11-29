@@ -8,6 +8,12 @@ export default CadastroView = () => {
   const [senha, setSenha] = useState('');
 
   const handleCadastro = async () => {
+    // Verificar se os campos estão preenchidos
+    if (!nome || !email || !senha) {
+      Alert.alert('Erro', 'Todos os campos são obrigatórios.');
+      return; // Impede o envio dos dados vazios
+    }
+
     try {
       const response = await fetch(apiUrl + "/usuario", {
         method: 'POST',
